@@ -54,6 +54,37 @@ public class BudgetServiceTest {
         budgetShouldBe(startDate, endDate, 20);
     }
 
+    @Test
+    public void budget_two_month_diff_money_0831_0902() {
+
+        givenBudgetList(new Budget("201808",  310), new Budget("201809", 150) );
+        LocalDate startDate = LocalDate.of(2018, 8, 31);
+        LocalDate endDate = LocalDate.of(2018, 9, 1);
+
+        budgetShouldBe(startDate, endDate, 15);
+    }
+
+    @Test
+    public void budget_diff_year_0831_0902() {
+
+        givenBudgetList(new Budget("201708",  310),
+                        new Budget("201809", 150) );
+        LocalDate startDate = LocalDate.of(2017, 8, 1);
+        LocalDate endDate = LocalDate.of(2018, 10, 1);
+
+        budgetShouldBe(startDate, endDate, 460);
+    }
+
+    @Test
+    public void budget_one_month_0229() {
+
+        givenBudgetList(new Budget("201602",  290));
+        LocalDate startDate = LocalDate.of(2016, 2, 29);
+        LocalDate endDate = LocalDate.of(2016, 2, 29);
+
+        budgetShouldBe(startDate, endDate, 10);
+    }
+
     private void givenBudgetList(Budget... budgets) {
         when(repo.getAll()).thenReturn(Arrays.asList(
                 budgets
