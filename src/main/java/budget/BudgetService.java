@@ -1,3 +1,5 @@
+package budget;
+
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -18,11 +20,11 @@ public class BudgetService {
         Double result = 0.0;
         Map<LocalDate, Integer> budgetMap = convertAll();
         LocalDate refStartDate = LocalDate.of(start.getYear(), start.getMonth(), start.getDayOfMonth());
-        while(refStartDate.isBefore(end)) {
+        while(refStartDate.isBefore(end) || refStartDate.isEqual(end)) {
 
             // get the budget of this month
             LocalDate startOfMonth = LocalDate.of(refStartDate.getYear(), refStartDate.getMonth(), 1);
-            int amount = budgetMap.get(startOfMonth);
+            int amount = budgetMap.containsKey(startOfMonth) ? budgetMap.get(startOfMonth) : 0;
 
             LocalDate refEndDate;
             LocalDate endOfMonth = startOfMonth.plusMonths(1).minusDays(1);
@@ -41,14 +43,13 @@ public class BudgetService {
 
             result += calculatedAmount;
 
-            refStartDate = refStartDate.plusMonths(1);
+            refStartDate = startOfMonth.plusMonths(1);
         }
 
         result = Math.round(result * 100.0) / 100.0;
 
         return result;
     }
-
 
     private Map<LocalDate, Integer> convertAll() {
         List<Budget> budgetList = repo.getAll();
@@ -60,10 +61,5 @@ public class BudgetService {
         return result;
 
     }
-
-
-
-
-
 
 }

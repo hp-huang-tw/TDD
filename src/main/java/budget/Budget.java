@@ -1,3 +1,5 @@
+package budget;
+
 import java.time.LocalDate;
 
 public class Budget {
