@@ -22,21 +22,12 @@ public class BudgetService {
         Map<LocalDate, Integer> budgetMap = convertAll();
         LocalDate refStartDate = LocalDate.of(start.getYear(), start.getMonth(), start.getDayOfMonth());
         while(isInQueryPeriod(refStartDate, end)) {
-
             // get the budget of this month
             LocalDate startOfMonth = getStartDateOfMonth(refStartDate.getYear(), refStartDate.getMonth());
             int amount = getMonthAmount(budgetMap, startOfMonth);
 
-            LocalDate refEndDate;
-            LocalDate endOfMonth = getEndOfMonth(startOfMonth);
-            if (end.isAfter(endOfMonth)){
-                refEndDate = endOfMonth;
-            } else {
-                refEndDate = end;
-            }
-
-            int days = getDays(refStartDate, refEndDate);
-            result += calculatedAmount(refStartDate, amount, days);
+            LocalDate refEndDate = getRefEndDate(end, startOfMonth);
+            result += calculatedAmount(refStartDate, refEndDate, amount);
 
             refStartDate = startOfMonth.plusMonths(1);
         }
@@ -46,7 +37,17 @@ public class BudgetService {
         return result;
     }
 
-    private double calculatedAmount(LocalDate refStartDate, int amount, int days) {
+    private LocalDate getRefEndDate(LocalDate end, LocalDate startOfMonth) {
+        LocalDate endOfMonth = getEndOfMonth(startOfMonth);
+        if (end.isAfter(endOfMonth)){
+            return endOfMonth;
+        } else {
+            return end;
+        }
+    }
+
+    private double calculatedAmount(LocalDate refStartDate, LocalDate refEndDate, int amount) {
+        int days = getDays(refStartDate, refEndDate);
         return days == refStartDate.lengthOfMonth()
                                               ? amount
                                               : (double) amount /refStartDate.lengthOfMonth() * days;
