@@ -85,6 +85,16 @@ public class BudgetServiceTest {
         budgetShouldBe(startDate, endDate, 10);
     }
 
+    @Test
+    public void budget_one_month_0801_0831_double_points() {
+
+        givenBudgetList(new Budget("201808",  290));
+        LocalDate startDate = LocalDate.of(2018, 8, 1);
+        LocalDate endDate = LocalDate.of(2018, 8, 29);
+
+        budgetShouldBe(startDate, endDate, 271.29);
+    }
+
     private void givenBudgetList(Budget... budgets) {
         when(repo.getAll()).thenReturn(Arrays.asList(
                 budgets

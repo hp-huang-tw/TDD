@@ -1,6 +1,7 @@
 package budget;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,28 +21,22 @@ public class BudgetService {
         Double result = 0.0;
         Map<LocalDate, Integer> budgetMap = convertAll();
         LocalDate refStartDate = LocalDate.of(start.getYear(), start.getMonth(), start.getDayOfMonth());
-        while(refStartDate.isBefore(end) || refStartDate.isEqual(end)) {
+        while(isInQueryPeriod(refStartDate, end)) {
 
             // get the budget of this month
-            LocalDate startOfMonth = LocalDate.of(refStartDate.getYear(), refStartDate.getMonth(), 1);
-            int amount = budgetMap.containsKey(startOfMonth) ? budgetMap.get(startOfMonth) : 0;
+            LocalDate startOfMonth = getStartDateOfMonth(refStartDate.getYear(), refStartDate.getMonth());
+            int amount = getMonthAmount(budgetMap, startOfMonth);
 
             LocalDate refEndDate;
-            LocalDate endOfMonth = startOfMonth.plusMonths(1).minusDays(1);
+            LocalDate endOfMonth = getEndOfMonth(startOfMonth);
             if (end.isAfter(endOfMonth)){
                 refEndDate = endOfMonth;
             } else {
                 refEndDate = end;
             }
 
-            // calculate month
-            int days = refEndDate.getDayOfMonth() - refStartDate.getDayOfMonth() + 1;
-
-            double calculatedAmount = days == refStartDate.lengthOfMonth()
-                                      ? amount
-                                      : amount /refStartDate.lengthOfMonth() * days;
-
-            result += calculatedAmount;
+            int days = getDays(refStartDate, refEndDate);
+            result += calculatedAmount(refStartDate, amount, days);
 
             refStartDate = startOfMonth.plusMonths(1);
         }
@@ -49,6 +44,32 @@ public class BudgetService {
         result = Math.round(result * 100.0) / 100.0;
 
         return result;
+    }
+
+    private double calculatedAmount(LocalDate refStartDate, int amount, int days) {
+        return days == refStartDate.lengthOfMonth()
+                                              ? amount
+                                              : (double) amount /refStartDate.lengthOfMonth() * days;
+    }
+
+    private int getDays(LocalDate refStartDate, LocalDate refEndDate) {
+        return refEndDate.getDayOfMonth() - refStartDate.getDayOfMonth() + 1;
+    }
+
+    private LocalDate getEndOfMonth(LocalDate startOfMonth) {
+        return startOfMonth.plusMonths(1).minusDays(1);
+    }
+
+    private int getMonthAmount(Map<LocalDate, Integer> budgetMap, LocalDate startOfMonth) {
+        return budgetMap.containsKey(startOfMonth) ? budgetMap.get(startOfMonth) : 0;
+    }
+
+    private boolean isInQueryPeriod(LocalDate refStartDate, LocalDate end) {
+        return refStartDate.isBefore(end) || refStartDate.isEqual(end);
+    }
+
+    private LocalDate getStartDateOfMonth(int year, Month month) {
+        return LocalDate.of(year, month, 1);
     }
 
     private Map<LocalDate, Integer> convertAll() {
